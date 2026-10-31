@@ -218,7 +218,9 @@ export interface Series {
   width?: number;
   stepped?: boolean;
 }
-export function Plot({ series, xLabel, yLabel, height = 260, vlines = [], points = [], onHover }: { series: Series[]; xLabel?: string; yLabel?: string; height?: number; vlines?: { x: number; label: string; color?: string }[]; points?: { x: number; y: number; label?: string; color?: string }[]; onHover?: (x: number | null) => void }) {
+const NO_VLINES: { x: number; label: string; color?: string }[] = [];
+const NO_POINTS: { x: number; y: number; label?: string; color?: string }[] = [];
+export function Plot({ series, xLabel, yLabel, height = 260, vlines = NO_VLINES, points = NO_POINTS, onHover }: { series: Series[]; xLabel?: string; yLabel?: string; height?: number; vlines?: { x: number; label: string; color?: string }[]; points?: { x: number; y: number; label?: string; color?: string }[]; onHover?: (x: number | null) => void }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const chart = useRef<Chart | null>(null);
   const pal = usePalette();

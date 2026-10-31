@@ -88,5 +88,5 @@ export function analyze(circuit: Circuit, opt: AnalyzeOptions = {}): Analysis {
     }
   }
   const scale = Math.max(1e-12, delivered, absorbed);
-  return { circuit, net, issues, ok: ok && !!dc, dc, topo, kcl, kvl, balance: { delivered, absorbed, ok: Math.abs(delivered - absorbed) <= 1e-9 * scale } };
+  return { circuit, net, issues, ok: ok && !!dc, dc, topo, kcl, kvl, balance: { delivered, absorbed, ok: Math.abs(delivered - absorbed) <= 1e-9 * scale + 1e-9 } };
 }

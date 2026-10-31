@@ -43,7 +43,11 @@ export function randomGridCircuit(r: Rng, o: GenOptions = {}): Circuit {
     for (let j = 0; j <= rows; j++) for (let i = 0; i < cols; i++) edges.push({ a: [i * S, j * S], b: [(i + 1) * S, j * S] });
     for (let j = 0; j < rows; j++) for (let i = 0; i <= cols; i++) edges.push({ a: [i * S, j * S], b: [i * S, (j + 1) * S] });
     const kinds: (Kind | 'W')[] = edges.map(() => 'R');
-    const order = edges.map((_, k) => k).sort(() => r() - 0.5);
+    const order = edges.map((_, k) => k);
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(r() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
     let p = 0;
     for (let k = 0; k < (o.vSources ?? 1); k++) kinds[order[p++]] = 'V';
     for (let k = 0; k < (o.iSources ?? 0); k++) kinds[order[p++]] = 'I';
@@ -89,7 +93,7 @@ export function randomGridCircuit(r: Rng, o: GenOptions = {}): Circuit {
     if (an.issues.some((i) => i.severity === 'warning' && i.code !== 'sincorriente')) continue;
     // evitar valores absurdos
     const maxI = Math.max(...[...an.dc!.el.values()].map((x) => Math.abs(x.i)));
-    if (!isFinite(maxI) || maxI > 1e3 || an.topo.meshes.length !== an.topo.independentLoops) continue;
+    if (!isFinite(maxI) || maxI > 1e3 || maxI < 1e-6 || an.topo.meshes.length !== an.topo.independentLoops) continue;
     return c;
   }
   throw new Error('No se pudo generar un circuito válido');

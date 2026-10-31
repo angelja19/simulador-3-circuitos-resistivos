@@ -91,7 +91,8 @@ export function validate(c: Circuit | null, net: Netlist, opt: ValidateOptions =
     }
   }
   // camino cerrado: debe existir al menos un lazo con elementos que conducen
-  const conducts = (e: NetElement) => e.kind !== 'VM' && !(e.kind === 'SW' && !switchStateAfter(e) && mode === 'dc') && !(e.kind === 'C' && mode === 'dc');
+  // el concepto de circuito cerrado es geométrico: un lazo que pasa por un capacitor existe (su problema en DC lo informan otros errores)
+  const conducts = (e: NetElement) => e.kind !== 'VM' && !(e.kind === 'SW' && !switchStateAfter(e) && mode === 'dc');
   {
     const p2 = Array.from({ length: N }, (_, i) => i);
     const f2 = (x: number): number => (p2[x] === x ? x : (p2[x] = f2(p2[x])));
@@ -223,7 +224,7 @@ export function validate(c: Circuit | null, net: Netlist, opt: ValidateOptions =
         const x = r.el.get(e.id)!;
         if ((e.kind === 'R' || e.kind === 'G') && Math.abs(x.p) > 1e4)
           out.push(mk('exagerado', 'warning', `${e.label} disiparía ${fmtEng(x.p, 'W')} (corriente ${fmtEng(Math.abs(x.i), 'A')}).`, 'Es mucha potencia para una resistencia de circuito; las comunes son de ¼ a 5 W.', 'Una resistencia real se quemaría salvo que sea de potencia (calefactor, freno).', 'Si es un ejercicio de papel, ignore el aviso; si es un circuito real, aumente R o baje la fuente.', [e.id]));
-        if ((e.kind === 'R' || e.kind === 'G') && Math.abs(x.i) < 1e-15 && e.n1 !== e.n2 && Math.abs(r.V[e.n1]) + Math.abs(r.V[e.n2]) > 0)
+        if (mode === 'dc' && (e.kind === 'R' || e.kind === 'G') && Math.abs(x.i) < 1e-15 && e.n1 !== e.n2 && Math.abs(r.V[e.n1]) + Math.abs(r.V[e.n2]) > 0)
           out.push(mk('sincorriente', 'warning', `Por ${e.label} no circula corriente.`, 'Sus dos terminales están al mismo voltaje (puente balanceado o rama abierta).', 'Ese elemento no cumple ninguna función en este circuito.', 'Puede retirarlo sin cambiar el resto del circuito.', [e.id]));
       }
     }

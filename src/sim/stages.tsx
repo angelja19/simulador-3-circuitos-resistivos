@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Analysis } from '../core/engine/analyze';
 import { REdge, ReduceResult } from '../core/engine/methods/reduce';
 import { fmtEng } from '../core/engine/units';
-import { Tex, usePalette } from '../core/ui/basic';
+import { Tex, TexText, usePalette } from '../core/ui/basic';
 import { U } from '../core/ui/symbols';
 
 /** Posición de cada nodo (centroide de sus puntos de grilla) */
@@ -115,11 +115,11 @@ export function ReductionAnimation({ red, pos, s, t }: { red: ReduceResult; pos:
       <StageDrawing edges={edges} pos={p2} s={s} t={t} highlight={[...(cur?.outputs ?? []), ...(next?.inputs ?? [])]} />
       {cur && (
         <div className="card">
-          <b>{cur.kind === 'serie' ? 'Serie' : cur.kind === 'paralelo' ? 'Paralelo' : cur.kind === 'Δ→Y' ? 'Triángulo → estrella' : 'Se elimina'}:</b> {cur.text}
+          <b>{cur.kind === 'serie' ? 'Serie' : cur.kind === 'paralelo' ? 'Paralelo' : cur.kind === 'Δ→Y' ? 'Triángulo → estrella' : 'Se elimina'}:</b> <TexText text={cur.text} />
           <Tex tex={cur.tex} block />
         </div>
       )}
-      {next && <p className="hint">Siguiente: {next.text}</p>}
+      {next && <p className="hint">Siguiente: <TexText text={next.text} /></p>}
     </div>
   );
 }

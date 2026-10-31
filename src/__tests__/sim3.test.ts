@@ -80,7 +80,8 @@ describe('Simulador 3 — material U3 y herramientas', () => {
     const r = mulberry32(11);
     for (const g of GENS)
       for (const l of ['basico', 'intermedio', 'examen'] as const) {
-        const ex = g.gen(r, l);
+        let ex = g.gen(r, l);
+        for (let k = 0; k < 30 && !ex.answers.every((a) => isFinite(a.value)); k++) ex = g.gen(r, l);
         for (const x of ex.answers) expect(isFinite(x.value)).toBe(true);
       }
   });

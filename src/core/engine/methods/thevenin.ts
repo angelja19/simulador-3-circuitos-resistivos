@@ -32,6 +32,8 @@ export function thevenin(net: Netlist, p: number, q: number, removeIds: string[]
   const base: TheveninResult = { ok: false, case: kase, Eth: 0, Rth: NaN, Icc: NaN, In: NaN, rMethod: 'apagar fuentes', openCircuit: null };
   if (p === q) return { ...base, error: 'Los dos terminales elegidos son el mismo nodo.' };
   // Voltaje de circuito abierto: se agrega una fuente de prueba de 0 A entre p y q (no altera nada) para asegurar el nodo
+  const ctrlRemoved = net.elements.find((e) => e.ctrlRef && remove.has(e.ctrlRef));
+  if (ctrlRemoved) return { ...base, error: `La carga elegida es la variable de control de ${ctrlRemoved.label}: si se retira, la fuente dependiente pierde su control. Elija los terminales a y b sin retirar ese elemento, o tome como carga otro elemento.` };
   const oc = solveMNA(net, { remove });
   if (!oc.ok) return { ...base, error: 'No se puede resolver el circuito con los terminales abiertos (revise que la red no quede flotante al retirar la carga).' };
   const Eth = oc.V[p] - oc.V[q];

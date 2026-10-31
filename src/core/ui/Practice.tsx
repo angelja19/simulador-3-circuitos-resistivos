@@ -40,7 +40,12 @@ export function PracticeView({ gens, storageKey }: { gens: ExerciseGen[]; storag
   const gen = gens.find((g) => g.id === gid) ?? gens[0];
   const ex = useMemo(() => {
     try {
-      return gen.gen(mulberry32(seed), level);
+      const rng = mulberry32(seed);
+      for (let k = 0; k < 30; k++) {
+        const ex = gen.gen(rng, level);
+        if (ex.answers.every((a) => isFinite(a.value))) return ex;
+      }
+      return gen.gen(rng, level);
     } catch (e) {
       return { prompt: 'No se pudo generar el ejercicio, pruebe con «Nuevo ejercicio».', answers: [], hints: [], solution: [] } as Exercise;
     }

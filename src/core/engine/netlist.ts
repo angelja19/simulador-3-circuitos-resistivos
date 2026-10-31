@@ -140,10 +140,24 @@ export function buildNetlist(c: Circuit): Netlist {
   const nodeCount = (groundRoot ? 1 : 0) + others.length;
   const nodePoints: Pt[][] = new Array(nodeCount).fill(null).map(() => []);
   for (const [r, g] of groups) if (index.has(r)) nodePoints[index.get(r)!] = g;
-  const nodeNames = new Array(nodeCount).fill('').map((_, i) => (i === 0 ? '0' : String(i)));
+  const nodeNames = new Array(nodeCount).fill('');
+  nodeNames[0] = '0';
+  const userNamed = new Set<number>();
   for (const nn of c.nodeNames ?? []) {
     const r = uf.find(key(nn));
-    if (index.has(r) && nn.name.trim()) nodeNames[index.get(r)!] = nn.name.trim();
+    if (index.has(r) && nn.name.trim()) {
+      nodeNames[index.get(r)!] = nn.name.trim();
+      userNamed.add(index.get(r)!);
+    }
+  }
+  const used = new Set(nodeNames.filter(Boolean));
+  let auto = 1;
+  for (let i = 1; i < nodeCount; i++) {
+    if (userNamed.has(i)) continue;
+    while (used.has(String(auto))) auto++;
+    nodeNames[i] = String(auto);
+    used.add(String(auto));
+    auto++;
   }
 
   const elements: NetElement[] = [];
